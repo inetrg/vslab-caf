@@ -1,5 +1,4 @@
-#ifndef IS_PROBABLE_PRIME
-#define IS_PROBABLE_PRIME
+#pragma once
 
 // Boost includes
 CAF_PUSH_WARNINGS
@@ -15,5 +14,3 @@ bool is_probable_prime(const T& x, unsigned trials = 25) {
   // increase 25 to a higher value for higher accuracy
   return boost::multiprecision::miller_rabin_test(x, trials);
 }
-
-#endif // IS_PROBABLE_PRIME

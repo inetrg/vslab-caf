@@ -35,6 +35,7 @@ endif()
 include_directories(. include  ${CMAKE_CURRENT_SOURCE_DIR}/third_party ${CAF_INCLUDE_DIRS})
 
 set(SOURCES
+    src/int512_serialization.cpp
     src/main.cpp)
 
 file(GLOB HEADERS "include/*.hpp")
