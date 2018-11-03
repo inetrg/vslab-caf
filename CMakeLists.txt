@@ -21,7 +21,13 @@ else ()
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
 endif ()
 
-find_package(CAF COMPONENTS core io REQUIRED)
+find_package(CAF COMPONENTS core io)
+
+if (NOT CAF_FOUND AND NOT CAF_ROOT_DIR)
+  message(STATUS "CAF not installed, try finding it in parent directory")
+  set(CAF_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../actor-framework/build")
+  find_package(CAF COMPONENTS core io REQUIRED)
+endif()
 
 # we need this to be able to include headers produced by uic in our code
 # (CMAKE_BINARY_DIR holds a path to the build directory, while INCLUDE_DIRECTORIES() works just like INCLUDEPATH
@@ -35,5 +41,3 @@ file(GLOB HEADERS "include/*.hpp")
 
 add_executable(vslab ${SOURCES} ${HEADERS})
 target_link_libraries(vslab ${CMAKE_DL_LIBS} ${CAF_LIBRARIES})
-add_dependencies(vslab all_programs)
-

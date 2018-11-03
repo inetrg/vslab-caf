@@ -1,6 +1,6 @@
-To build and run from command line:
+To build and run from command line (you need to build or install CAF first):
 
-```
+```bash
 mkdir build
 cd build
 cmake ..
@@ -8,10 +8,11 @@ make
 ./vslab <args>
 ```
 
-If CAF is not installed (or cannot be installed) on the computer, instead of `cmake ..`, use:
+CMake will find CAF as long as it is installed or located in the parent
+directory, i.e., `../actor-framework/build` contains a valid CAF build.
+
+You can also point CMake to other CAF bulid directories:
 
 ```bash
 cmake -D CAF_ROOT_DIR=<path-to-caf>/build ..
 ```
-
-Note: you need to build CAF first (in parent directory)
