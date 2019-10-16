@@ -1,25 +1,13 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.1)
 project(vslab CXX)
 
-set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
+include(GNUInstallDirs)
 
-# check if the user provided CXXFLAGS on the command line
-if (CMAKE_CXX_FLAGS)
-    set(CXXFLAGS_PROVIDED true)
-endif ()
-if (CXXFLAGS_PROVIDED)
-  set(CMAKE_CXX_FLAGS_DEBUG          "")
-  set(CMAKE_CXX_FLAGS_MINSIZEREL     "")
-  set(CMAKE_CXX_FLAGS_RELEASE        "")
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "")
-else ()
-  set(IGNORED_WARNINGS "-Wno-gnu-folding-constant")
-  set(CMAKE_CXX_FLAGS                "-std=c++11 -Wextra -Wall -fpermissive ${IGNORED_WARNINGS}")
-  set(CMAKE_CXX_FLAGS_DEBUG          "-O0 -g")
-  set(CMAKE_CXX_FLAGS_MINSIZEREL     "-Os")
-  set(CMAKE_CXX_FLAGS_RELEASE        "-O4")
-  set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O2 -g")
-endif ()
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 find_package(CAF COMPONENTS core io)
 
