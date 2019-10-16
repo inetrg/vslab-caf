@@ -53,13 +53,6 @@ struct config : actor_system_config {
   }
 };
 
-// Use this if you want to print numbers with aout.
-std::string to_string(int512_t x) {
-  std::stringstream s;
-  s << x;
-  return s.str();
-}
-
 // -- SERVER -------------------------------------------------------------------
 
 void run_server(actor_system& sys, const config& cfg) {
@@ -73,10 +66,24 @@ void run_server(actor_system& sys, const config& cfg) {
 
 // -- CLIENT -------------------------------------------------------------------
 
+// Client state, keep track of factors, time, etc.
+struct client_state {
+  // The joined group.
+  group grp;
+};
+
+behavior client(stateful_actor<client_state>* self, caf::group grp) {
+  // Join group and save it to send messages later.
+  self->join(grp);
+  self->state.grp = grp;
+  // TODO: Implement me.
+  return {};
+}
+
 void run_client(actor_system& sys, const config& cfg) {
   if (auto eg = sys.middleman().remote_group("vslab", cfg.host, cfg.port)) {
     auto grp = *eg;
-    // TODO: Implement client.
+    sys.spawn(client, grp);
   } else {
     cerr << "error: " << sys.render(eg.error()) << '\n';
   }
@@ -97,7 +104,7 @@ behavior worker(stateful_actor<worker_state>* self, caf::group grp) {
   // TODO: Implement me.
   // - Calculate rho.
   // - Check for new messages in between.
-  // return { ... };
+  return {};
 }
 
 void run_worker(actor_system& sys, const config& cfg) {

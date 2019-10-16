@@ -1,9 +1,12 @@
 #include "int512_serialization.hpp"
 
-#include "caf/serializer.hpp"
-#include "caf/deserializer.hpp"
+#include <sstream>
 
-namespace boost { namespace multiprecision {
+#include "caf/deserializer.hpp"
+#include "caf/serializer.hpp"
+
+namespace boost {
+namespace multiprecision {
 
 void serialize(caf::serializer& s, int512_t& i512) {
   auto& x = i512.backend();
@@ -22,4 +25,11 @@ void serialize(caf::deserializer& d, int512_t& i512) {
     x.negate();
 }
 
-} } // namespace boost::multiprecision
+std::string to_string(int512_t x) {
+  std::stringstream s;
+  s << x;
+  return s.str();
+}
+
+} // namespace multiprecision
+} // namespace boost
