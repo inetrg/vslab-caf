@@ -15,9 +15,7 @@
 
 // Boost includes
 CAF_PUSH_WARNINGS
-#ifdef CAF_CLANG
-#pragma clang diagnostic ignored "-Wdeprecated-copy"
-#elif defined(CAF_GCC)
+#ifdef CAF_GCC
 #pragma GCC diagnostic ignored "-Wdeprecated-copy"
 #endif
 #include <boost/multiprecision/cpp_int.hpp>
