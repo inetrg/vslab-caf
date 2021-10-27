@@ -25,6 +25,7 @@ CAF_POP_WARNINGS
 // Own includes
 #include "int512_serialization.hpp"
 #include "is_probable_prime.hpp"
+#include "types.hpp"
 
 using std::cerr;
 using std::cout;
@@ -46,8 +47,6 @@ struct config : actor_system_config {
   size_t num_workers = 0;
   string mode;
   config() {
-    add_message_type<int512_t>("int512_t");
-    add_message_type<vector<int512_t>>("vector<int512_t>");
     opt_group{custom_options_, "global"}
       .add(host, "host,H", "server host (ignored in server mode)")
       .add(port, "port,p", "port")
@@ -62,7 +61,7 @@ void run_server(actor_system& sys, const config& cfg) {
   if (auto port = sys.middleman().publish_local_groups(cfg.port))
     cout << "published local groups at port " << *port << '\n';
   else
-    cerr << "error: " << sys.render(port.error()) << '\n';
+    cerr << "error: " << caf::to_string(port.error()) << '\n';
   cout << "press any key to exit" << std::endl;
   getc(stdin);
 }
@@ -88,7 +87,7 @@ void run_client(actor_system& sys, const config& cfg) {
     auto grp = *eg;
     sys.spawn(client, grp);
   } else {
-    cerr << "error: " << sys.render(eg.error()) << '\n';
+    cerr << "error: " << caf::to_string(eg.error()) << '\n';
   }
 }
 
@@ -116,7 +115,7 @@ void run_worker(actor_system& sys, const config& cfg) {
     // TODO: Spawn workers, e.g:
     // sys.spawn(worker, grp);
   } else {
-    cerr << "error: " << sys.render(eg.error()) << '\n';
+    cerr << "error: " << caf::to_string(eg.error()) << '\n';
   }
   sys.await_all_actors_done();
 }
@@ -125,17 +124,37 @@ void run_worker(actor_system& sys, const config& cfg) {
 
 // dispatches to run_* function depending on selected mode
 void caf_main(actor_system& sys, const config& cfg) {
-  using map_t = unordered_map<string, void (*)(actor_system&, const config&)>;
-  map_t modes{
-    {"server", run_server},
-    {"worker", run_worker},
-    {"client", run_client},
+  
+  auto check_roundtrip = [&](int512_t a) {
+    std::cout << "starting with a = " << a << std::endl;
+    byte_buffer buf;
+    binary_serializer sink{sys, buf};
+    assert(sink.apply(a));
+    binary_deserializer source{sys, buf};
+    int512_t a_copy;
+    assert(source.apply(a_copy));
+    std::cout << "got a copy = " << a_copy << std::endl;
+    assert(a == a_copy);
   };
-  auto i = modes.find(cfg.mode);
-  if (i != modes.end())
-    (i->second)(sys, cfg);
-  else
-    cerr << "*** invalid mode specified" << endl;
+  check_roundtrip(1234912948123);
+  check_roundtrip(-124);
+  
+  int512_t n = 1;
+  for (int512_t i = 2; i <= 20; ++i)
+    n *= i;
+  check_roundtrip(n);
+  
+//  using map_t = unordered_map<string, void (*)(actor_system&, const config&)>;
+//  map_t modes{
+//    {"server", run_server},
+//    {"worker", run_worker},
+//    {"client", run_client},
+//  };
+//  auto i = modes.find(cfg.mode);
+//  if (i != modes.end())
+//    (i->second)(sys, cfg);
+//  else
+//    cerr << "*** invalid mode specified" << endl;
 }
 
 } // namespace
