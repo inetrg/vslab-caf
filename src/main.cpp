@@ -48,16 +48,16 @@ struct config : actor_system_config {
   string mode;
   config() {
     opt_group{custom_options_, "global"}
-      .add(host, "host,H", "server host (ignored in server mode)")
-      .add(port, "port,p", "port")
-      .add(num_workers, "num-workers,w", "number of workers (in worker mode)")
-      .add(mode, "mode,m", "one of 'server', 'worker' or 'client'");
+        .add(host, "host,H", "server host (ignored in server mode)")
+        .add(port, "port,p", "port")
+        .add(num_workers, "num-workers,w", "number of workers (in worker mode)")
+        .add(mode, "mode,m", "one of 'server', 'worker' or 'client'");
   }
 };
 
 // -- SERVER -------------------------------------------------------------------
 
-void run_server(actor_system& sys, const config& cfg) {
+void run_server(actor_system &sys, const config &cfg) {
   if (auto port = sys.middleman().publish_local_groups(cfg.port))
     cout << "published local groups at port " << *port << '\n';
   else
@@ -74,7 +74,7 @@ struct client_state {
   group grp;
 };
 
-behavior client(stateful_actor<client_state>* self, caf::group grp) {
+behavior client(stateful_actor<client_state> *self, caf::group grp) {
   // Join group and save it to send messages later.
   self->join(grp);
   self->state.grp = grp;
@@ -82,7 +82,7 @@ behavior client(stateful_actor<client_state>* self, caf::group grp) {
   return {};
 }
 
-void run_client(actor_system& sys, const config& cfg) {
+void run_client(actor_system &sys, const config &cfg) {
   if (auto eg = sys.middleman().remote_group("vslab", cfg.host, cfg.port)) {
     auto grp = *eg;
     sys.spawn(client, grp);
@@ -99,7 +99,7 @@ struct worker_state {
   group grp;
 };
 
-behavior worker(stateful_actor<worker_state>* self, caf::group grp) {
+behavior worker(stateful_actor<worker_state> *self, caf::group grp) {
   // Join group and save it to send messages later.
   self->join(grp);
   self->state.grp = grp;
@@ -109,7 +109,7 @@ behavior worker(stateful_actor<worker_state>* self, caf::group grp) {
   return {};
 }
 
-void run_worker(actor_system& sys, const config& cfg) {
+void run_worker(actor_system &sys, const config &cfg) {
   if (auto eg = sys.middleman().remote_group("vslab", cfg.host, cfg.port)) {
     auto grp = *eg;
     // TODO: Spawn workers, e.g:
@@ -123,38 +123,40 @@ void run_worker(actor_system& sys, const config& cfg) {
 // -- MAIN ---------------------------------------------------------------------
 
 // dispatches to run_* function depending on selected mode
-void caf_main(actor_system& sys, const config& cfg) {
-  
+void caf_main(actor_system &sys, const config &cfg) {
+
+  // Check serialization implementation.
   auto check_roundtrip = [&](int512_t a) {
-    std::cout << "starting with a = " << a << std::endl;
     byte_buffer buf;
     binary_serializer sink{sys, buf};
     assert(sink.apply(a));
     binary_deserializer source{sys, buf};
     int512_t a_copy;
     assert(source.apply(a_copy));
-    std::cout << "got a copy = " << a_copy << std::endl;
     assert(a == a_copy);
   };
   check_roundtrip(1234912948123);
   check_roundtrip(-124);
-  
+
   int512_t n = 1;
-  for (int512_t i = 2; i <= 20; ++i)
+  for (int512_t i = 2; i <= 50; ++i)
     n *= i;
   check_roundtrip(n);
-  
-//  using map_t = unordered_map<string, void (*)(actor_system&, const config&)>;
-//  map_t modes{
-//    {"server", run_server},
-//    {"worker", run_worker},
-//    {"client", run_client},
-//  };
-//  auto i = modes.find(cfg.mode);
-//  if (i != modes.end())
-//    (i->second)(sys, cfg);
-//  else
-//    cerr << "*** invalid mode specified" << endl;
+  n *= -1;
+  check_roundtrip(n);
+
+  // Actual main
+  using map_t = unordered_map<string, void (*)(actor_system &, const config &)>;
+  map_t modes{
+      {"server", run_server},
+      {"worker", run_worker},
+      {"client", run_client},
+  };
+  auto i = modes.find(cfg.mode);
+  if (i != modes.end())
+    (i->second)(sys, cfg);
+  else
+    cerr << "*** invalid mode specified" << endl;
 }
 
 } // namespace
