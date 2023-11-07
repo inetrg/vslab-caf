@@ -9,19 +9,16 @@
 #include <boost/multiprecision/float128.hpp>
 #include <boost/multiprecision/complex_adaptor.hpp>
 
-
 namespace boost {
-   namespace multiprecision {
+namespace multiprecision {
 
-      typedef number<complex_adaptor<float128_backend>, et_off> complex128;
+template <>
+struct component_type<number<complex_adaptor<float128_backend> > >
+{
+   using type = float128;
+};
 
-      template <>
-      struct component_type<number<complex_adaptor<float128_backend> > >
-      {
-         typedef float128 type;
-      };
-
-   }
 }
+} // namespace boost::multiprecision
 
 #endif

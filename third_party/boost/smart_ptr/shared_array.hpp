@@ -14,18 +14,20 @@
 //  See http://www.boost.org/libs/smart_ptr/ for documentation.
 //
 
+#include <boost/smart_ptr/detail/requires_cxx11.hpp>
+
 #include <boost/config.hpp>   // for broken compiler workarounds
 
 #include <memory>             // TR1 cyclic inclusion fix
 
 #include <boost/assert.hpp>
-#include <boost/checked_delete.hpp>
+#include <boost/core/checked_delete.hpp>
 
 #include <boost/smart_ptr/shared_ptr.hpp>
 #include <boost/smart_ptr/detail/shared_count.hpp>
 #include <boost/smart_ptr/detail/sp_nullptr_t.hpp>
 #include <boost/smart_ptr/detail/sp_noexcept.hpp>
-#include <boost/detail/workaround.hpp>
+#include <boost/config/workaround.hpp>
 
 #include <cstddef>            // for std::ptrdiff_t
 #include <algorithm>          // for std::swap

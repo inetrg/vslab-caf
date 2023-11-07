@@ -435,7 +435,7 @@ namespace ut_detail {
 std::string
 normalize_test_case_name( const_string name )
 {
-    std::string norm_name( name.begin(), name.size() );
+    std::string norm_name( name.begin(), name.end() );
 
     if( name[0] == '&' )
         norm_name = norm_name.substr( 1 );
@@ -452,7 +452,7 @@ normalize_test_case_name( const_string name )
     }
 
     // sanitize all chars that might be used in runtime filters
-    static const char to_replace[] = { ':', '*', '@', '+', '!', '/' };
+    static const char to_replace[] = { ':', '*', '@', '+', '!', '/', ',' };
     for(std::size_t index = 0;
         index < sizeof(to_replace)/sizeof(to_replace[0]);
         index++) {
