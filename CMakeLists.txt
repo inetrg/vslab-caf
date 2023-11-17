@@ -14,7 +14,7 @@ if(NOT CAF_ROOT)
   FetchContent_Declare(
     actor_framework
     GIT_REPOSITORY https://github.com/actor-framework/actor-framework.git
-    GIT_TAG        1b29bf10
+    GIT_TAG        3fa129d
   )
   FetchContent_Populate(actor_framework)
   set(CAF_ENABLE_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -42,3 +42,13 @@ file(GLOB HEADERS "include/*.hpp")
 
 add_executable(vslab ${SOURCES} ${HEADERS})
 target_link_libraries(vslab ${CMAKE_DL_LIBS} CAF::core CAF::io)
+
+# Disable deprecation warnings (for GCC or clang)
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(vslab PRIVATE -Wno-deprecated-declarations)
+endif()
+
+# Disable deprecation warnings (for MSVC)
+if(MSVC)
+    target_compile_definitions(vslab PRIVATE _CRT_SECURE_NO_WARNINGS)
+endif()
