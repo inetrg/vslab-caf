@@ -51,5 +51,6 @@ endif()
 
 # Disable deprecation warnings (for MSVC)
 if(MSVC)
-    target_compile_definitions(vslab PRIVATE _CRT_SECURE_NO_WARNINGS)
+    target_compile_definitions(vslab PRIVATE /wd4996)
+    # target_compile_definitions(vslab PRIVATE _CRT_SECURE_NO_WARNINGS)
 endif()
