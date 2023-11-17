@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include "caf/byte.hpp"
 #include "caf/config.hpp"
 #include "caf/fwd.hpp"
@@ -28,23 +30,23 @@ template <class Inspector>
 bool inspect(Inspector& f, int512_t& i512) {
   auto& x = i512.backend();
   auto getter = [&] {
-    std::array<caf::byte, serialization_size> data;
+    std::array<std::byte, serialization_size> data;
     auto write_ptr = data.data();
     // serialize size
-    caf::byte size = static_cast<caf::byte>(x.size());
+    std::byte size = static_cast<std::byte>(x.size());
     *write_ptr = size;
     ++write_ptr;
     // serialize sign
-    caf::byte sign = static_cast<caf::byte>(static_cast<uint8_t>(x.sign()));
+    std::byte sign = static_cast<std::byte>(static_cast<uint8_t>(x.sign()));
     *write_ptr = sign;
     ++write_ptr;
     // serialize data
     uint32_t bytes_to_copy = x.size() * sizeof(limb_type);
-    auto ptr = reinterpret_cast<caf::byte*>(x.limbs());
+    auto ptr = reinterpret_cast<std::byte*>(x.limbs());
     std::copy(ptr, ptr + bytes_to_copy, write_ptr);
     return data;
   };
-  auto setter = [&](const std::array<caf::byte, serialization_size>& data) {
+  auto setter = [&](const std::array<std::byte, serialization_size>& data) {
     auto read_ptr = data.data();
     // deserialize size
     uint32_t size = static_cast<uint32_t>(*read_ptr);
@@ -56,7 +58,7 @@ bool inspect(Inspector& f, int512_t& i512) {
     // deserialize data
     uint32_t bytes_to_copy = x.size() * sizeof(limb_type);
     std::copy(read_ptr, read_ptr + bytes_to_copy,
-              reinterpret_cast<caf::byte*>(x.limbs()));
+              reinterpret_cast<std::byte*>(x.limbs()));
     // apply sign
     if (sign != x.sign())
       x.negate();
